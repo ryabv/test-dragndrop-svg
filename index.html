@@ -1,8 +1,39 @@
 <html>
     <head>
-
+        <meta charset="utf-8">
     </head>
     <body>
-        <h1>Hello world!</h1>
+        <div>
+
+            <svg width="500" height="500" fill="#000" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg" style="background: #eee">
+                <rect id="rect" draggable="true" x="10" y="10" width="100" height="100" style="cursor: pointer"/>
+            </svg>
+
+        </div>
+        <script>
+            let rect = document.getElementById('rect');
+
+            rect.addEventListener('mousedown', (e) => {
+                document.addEventListener('mousemove', move);
+            });
+
+
+            rect.addEventListener('mouseup', (e) => {
+                document.removeEventListener('mousemove', move);
+            });
+
+            // нужен для того, чтобы отключить listener браузера
+            // иначе появляется баг, при котором не можешь отпустить элемент
+            rect.ondragstart = function() {
+                return false;
+            };
+
+            function move(e) {
+                let rect = e.target;
+                rect.setAttribute('x', e.x - 100);
+                rect.setAttribute('y', e.y - 100);
+            }
+            
+        </script>
     </body>
 </html>
