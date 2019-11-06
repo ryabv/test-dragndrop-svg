@@ -28,10 +28,13 @@
                 return false;
             };
 
-            function move(e) {
+            function move(e, shiftX, shiftY) {
                 let rect = e.target;
-                rect.setAttribute('x', e.x - 100);
-                rect.setAttribute('y', e.y - 100);
+                let rectWidth = +rect.getAttribute('width');
+                let rectHeight = +rect.getAttribute('height');
+
+                rect.setAttribute('x', e.x - (rectWidth / 2));
+                rect.setAttribute('y', e.y - (rectHeight / 2));
             }
             
         </script>
