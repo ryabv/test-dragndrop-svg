@@ -18,8 +18,9 @@
         <div>
 
             <svg id="svg" width="500" height="500" fill="#000" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg" style="background: #eee">
-                <rect class="block" draggable="true" x="10" y="10" width="100" height="100" style="cursor: pointer"/>
-                <rect class="block" draggable="true" x="200" y="100" width="100" height="100" style="cursor: pointer"/>
+                <path class="connection connection_block1_block2" d="M 110,60 200,150 z" stroke-width="4" stroke="orange"/>
+                <rect class="block block1" draggable="true" x="10" y="10" width="100" height="100" style="cursor: pointer"/>
+                <rect class="block block2" draggable="true" x="200" y="100" width="100" height="100" style="cursor: pointer"/>
             </svg>
 
         </div>
@@ -124,6 +125,22 @@
 
                 rect.setAttribute('x', x);
                 rect.setAttribute('y', y);
+                syncPath(rect);
+            }
+
+
+            function syncPath(block) {
+                let blockCoords = getBlockCenterCoords(block);
+                let path = document.getElementsByTagName('path')[0];
+                let pathCoords = path.getAttribute('d').split(' ');
+
+                if (block.classList.contains('block1')) {
+                    pathCoords[1] = `${blockCoords.x},${blockCoords.y}`;
+                } else {
+                    pathCoords[2] = `${blockCoords.x},${blockCoords.y}`;
+                }
+                
+                path.setAttribute('d', pathCoords.join(' '));
             }
 
 
@@ -176,6 +193,13 @@
             }
 
 
+
+            function getBlockCenterCoords(block) {
+                let coords = {};
+                coords.x = (+block.getAttribute('x') + +block.getAttribute('width') / 2);
+                coords.y = (+block.getAttribute('y') + +block.getAttribute('height') / 2);
+                return coords;
+            }
 
             function isTouch(e) {
                 return Boolean(e.touches);
