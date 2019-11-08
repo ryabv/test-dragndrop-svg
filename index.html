@@ -12,8 +12,12 @@
         </div>
         <script>
             let rect = document.getElementById('rect');
+            let shiftX = 0;
+            let shiftY = 0;
 
             rect.addEventListener('mousedown', (e) => {
+                shiftX = e.x - e.target.getAttribute('x');
+                shiftY = e.y - e.target.getAttribute('y');
                 document.addEventListener('mousemove', move);
             });
 
@@ -28,13 +32,13 @@
                 return false;
             };
 
-            function move(e, shiftX, shiftY) {
+            function move(e) {
                 let rect = e.target;
                 let rectWidth = +rect.getAttribute('width');
                 let rectHeight = +rect.getAttribute('height');
 
-                rect.setAttribute('x', e.x - (rectWidth / 2));
-                rect.setAttribute('y', e.y - (rectHeight / 2));
+                rect.setAttribute('x', e.x - shiftX);
+                rect.setAttribute('y', e.y - shiftY);
             }
             
         </script>
