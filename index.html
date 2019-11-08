@@ -1,18 +1,29 @@
 <html>
     <head>
         <meta charset="utf-8">
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+            }
+            .select {
+                opacity: 0.5;
+            }
+        </style>
     </head>
     <body>
         <div>
 
             <svg id="rect" width="500" height="500" fill="#000" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg" style="background: #eee">
-                <rect draggable="true" x="10" y="10" width="100" height="100" style="cursor: pointer"/>
-                <rect draggable="true" x="200" y="100" width="100" height="100" style="cursor: pointer"/>
+                <rect class="block" draggable="true" x="10" y="10" width="100" height="100" style="cursor: pointer"/>
+                <rect class="block" draggable="true" x="200" y="100" width="100" height="100" style="cursor: pointer"/>
             </svg>
 
         </div>
         <script>
             let rect = document.getElementById('rect');
+            let select = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            select.classList.add('select');
             let shiftX = 0;
             let shiftY = 0;
 
@@ -21,6 +32,12 @@
                     shiftX = e.x - e.target.getAttribute('x');
                     shiftY = e.y - e.target.getAttribute('y');
                     document.addEventListener('mousemove', move);
+                } else {
+                    select.setAttributeNS(null, 'x', e.x);
+                    select.setAttributeNS(null, 'y', e.y);
+                    select.classList.add('select_active');
+                    rect.appendChild(select);
+                    document.addEventListener('mousemove', drawSelect);
                 }
             }, false);
 
@@ -28,24 +45,49 @@
                 if (e.target.nodeName === 'rect') {
                     shiftX = +e.touches[0].pageX - +e.target.getAttribute('x');
                     shiftY = +e.touches[0].pageY - +e.target.getAttribute('y');
-                    document.addEventListener('touchmove', touchMove);
+                    document.addEventListener('touchmove', move);
+                } else {
+                    select.setAttributeNS(null, 'x', e.touches[0].pageX);
+                    select.setAttributeNS(null, 'y', e.touches[0].pageY);
+                    select.classList.add('select_active');
+                    rect.appendChild(select);
+                    document.addEventListener('touchmove', drawSelect);
                 }
             }, false);
 
 
             rect.addEventListener('mouseup', (e) => {
-                shiftX = 0;
-                shiftY = 0;
-                document.removeEventListener('mousemove', move);
-                rect.onmouseup = null;
+                if (isBlock(e)) {
+                    shiftX = 0;
+                    shiftY = 0;
+                    document.removeEventListener('mousemove', move);
+                    rect.onmouseup = null;
+                } else {
+                    document.removeEventListener('mousemove', drawSelect);
+                    select.classList.remove('select_active');
+                    select.setAttributeNS(null, 'width', 0);
+                    select.setAttributeNS(null, 'height', 0);
+                    select.onmouseup = null;
+                }
             }, false);
 
             rect.addEventListener('touchend', (e) => {
-                shiftX = 0;
-                shiftY = 0;
-                document.removeEventListener('touchmove', touchMove);
-                rect.touchend = null;
+                if (isBlock(e)) {
+                    shiftX = 0;
+                    shiftY = 0;
+                    document.removeEventListener('touchmove', move);
+                    rect.touchend = null;
+                } else {
+                    console.log('touchend');
+                    document.removeEventListener('touchmove', drawSelect);
+                    select.classList.remove('select_active');
+                    select.setAttributeNS(null, 'width', 0);
+                    select.setAttributeNS(null, 'height', 0);
+                    select.touchend = null;
+                }
             }, false);
+
+
 
             // нужен для того, чтобы отключить listener браузера
             // иначе появляется баг, при котором не можешь отпустить элемент
@@ -53,19 +95,56 @@
                 return false;
             };
 
+            select.ondragstart = function() {
+                return false;
+            };
+
+
+
             function move(e) {
                 let rect = e.target;
+                let x, y;
 
-                rect.setAttribute('x', e.pageX - shiftX);
-                rect.setAttribute('y', e.pageY - shiftY);
+                if (isTouch(e)) {
+                    x = e.touches[0].pageX - shiftX;
+                    y = e.touches[0].pageY - shiftY;
+                } else {
+                    x = e.pageX - shiftX;
+                    y = e.pageY - shiftY;
+                }
+
+                rect.setAttribute('x', x);
+                rect.setAttribute('y', y);
             }
 
-            function touchMove(e) {
-                let rect = e.target;
-                rect.setAttribute('x', e.touches[0].pageX - shiftX);
-                rect.setAttribute('y', e.touches[0].pageY - shiftY);
+
+
+            function drawSelect(e) {
+                let sX = +select.getAttribute('x');
+                let sY = +select.getAttribute('y');
+                let w, h;
+
+                if (isTouch(e)) {
+                    w = e.touches[0].pageX - sX;
+                    h = e.touches[0].pageY - sY;
+                } else {
+                    w = e.x - sX;
+                    h = e.y - sY;
+                }
+
+                select.setAttributeNS(null, 'width', w > 0 ? w : 0);
+                select.setAttributeNS(null, 'height', h > 0 ? h : 0);
             }
-            
+
+
+
+            function isTouch(e) {
+                return Boolean(e.touches);
+            }
+
+            function isBlock(e) {
+                return e.target.classList.contains('block');
+            }
         </script>
     </body>
 </html>
