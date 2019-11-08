@@ -5,8 +5,9 @@
     <body>
         <div>
 
-            <svg width="500" height="500" fill="#000" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg" style="background: #eee">
-                <rect id="rect" draggable="true" x="10" y="10" width="100" height="100" style="cursor: pointer"/>
+            <svg id="rect" width="500" height="500" fill="#000" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg" style="background: #eee">
+                <rect draggable="true" x="10" y="10" width="100" height="100" style="cursor: pointer"/>
+                <rect draggable="true" x="200" y="100" width="100" height="100" style="cursor: pointer"/>
             </svg>
 
         </div>
@@ -16,15 +17,35 @@
             let shiftY = 0;
 
             rect.addEventListener('mousedown', (e) => {
-                shiftX = e.x - e.target.getAttribute('x');
-                shiftY = e.y - e.target.getAttribute('y');
-                document.addEventListener('mousemove', move);
-            });
+                if (e.target.nodeName === 'rect') {
+                    shiftX = e.x - e.target.getAttribute('x');
+                    shiftY = e.y - e.target.getAttribute('y');
+                    document.addEventListener('mousemove', move);
+                }
+            }, false);
+
+            rect.addEventListener('touchstart', (e) => {
+                if (e.target.nodeName === 'rect') {
+                    shiftX = +e.touches[0].pageX - +e.target.getAttribute('x');
+                    shiftY = +e.touches[0].pageY - +e.target.getAttribute('y');
+                    document.addEventListener('touchmove', touchMove);
+                }
+            }, false);
 
 
             rect.addEventListener('mouseup', (e) => {
+                shiftX = 0;
+                shiftY = 0;
                 document.removeEventListener('mousemove', move);
-            });
+                rect.onmouseup = null;
+            }, false);
+
+            rect.addEventListener('touchend', (e) => {
+                shiftX = 0;
+                shiftY = 0;
+                document.removeEventListener('touchmove', touchMove);
+                rect.touchend = null;
+            }, false);
 
             // нужен для того, чтобы отключить listener браузера
             // иначе появляется баг, при котором не можешь отпустить элемент
@@ -34,11 +55,15 @@
 
             function move(e) {
                 let rect = e.target;
-                let rectWidth = +rect.getAttribute('width');
-                let rectHeight = +rect.getAttribute('height');
 
-                rect.setAttribute('x', e.x - shiftX);
-                rect.setAttribute('y', e.y - shiftY);
+                rect.setAttribute('x', e.pageX - shiftX);
+                rect.setAttribute('y', e.pageY - shiftY);
+            }
+
+            function touchMove(e) {
+                let rect = e.target;
+                rect.setAttribute('x', e.touches[0].pageX - shiftX);
+                rect.setAttribute('y', e.touches[0].pageY - shiftY);
             }
             
         </script>
