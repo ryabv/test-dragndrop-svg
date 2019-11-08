@@ -5,8 +5,9 @@
     <body>
         <div>
 
-            <svg width="500" height="500" fill="#000" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg" style="background: #eee">
-                <rect id="rect" draggable="true" x="10" y="10" width="100" height="100" style="cursor: pointer"/>
+            <svg id="rect" width="500" height="500" fill="#000" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg" style="background: #eee">
+                <rect draggable="true" x="10" y="10" width="100" height="100" style="cursor: pointer"/>
+                <rect draggable="true" x="200" y="100" width="100" height="100" style="cursor: pointer"/>
             </svg>
 
         </div>
@@ -16,9 +17,11 @@
             let shiftY = 0;
 
             rect.addEventListener('mousedown', (e) => {
-                shiftX = e.x - e.target.getAttribute('x');
-                shiftY = e.y - e.target.getAttribute('y');
-                document.addEventListener('mousemove', move);
+                if (e.target.nodeName === 'rect') {
+                    shiftX = e.x - e.target.getAttribute('x');
+                    shiftY = e.y - e.target.getAttribute('y');
+                    document.addEventListener('mousemove', move);
+                }
             });
 
 
@@ -34,8 +37,8 @@
 
             function move(e) {
                 let rect = e.target;
-                let rectWidth = +rect.getAttribute('width');
-                let rectHeight = +rect.getAttribute('height');
+                // let rectWidth = +rect.getAttribute('width');
+                // let rectHeight = +rect.getAttribute('height');
 
                 rect.setAttribute('x', e.x - shiftX);
                 rect.setAttribute('y', e.y - shiftY);
