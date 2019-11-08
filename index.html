@@ -19,12 +19,28 @@
                 shiftX = e.x - e.target.getAttribute('x');
                 shiftY = e.y - e.target.getAttribute('y');
                 document.addEventListener('mousemove', move);
-            });
+            }, false);
+
+            rect.addEventListener('touchstart', (e) => {
+                shiftX = +e.touches[0].pageX - +e.target.getAttribute('x');
+                shiftY = +e.touches[0].pageY - +e.target.getAttribute('y');
+                document.addEventListener('touchmove', touchMove);
+            }, false);
 
 
             rect.addEventListener('mouseup', (e) => {
+                shiftX = 0;
+                shiftY = 0;
                 document.removeEventListener('mousemove', move);
-            });
+                rect.onmouseup = null;
+            }, false);
+
+            rect.addEventListener('touchend', (e) => {
+                shiftX = 0;
+                shiftY = 0;
+                document.removeEventListener('touchmove', touchMove);
+                rect.touchend = null;
+            }, false);
 
             // нужен для того, чтобы отключить listener браузера
             // иначе появляется баг, при котором не можешь отпустить элемент
@@ -34,11 +50,14 @@
 
             function move(e) {
                 let rect = e.target;
-                let rectWidth = +rect.getAttribute('width');
-                let rectHeight = +rect.getAttribute('height');
+                rect.setAttribute('x', e.pageX - shiftX);
+                rect.setAttribute('y', e.pageY - shiftY);
+            }
 
-                rect.setAttribute('x', e.x - shiftX);
-                rect.setAttribute('y', e.y - shiftY);
+            function touchMove(e) {
+                let rect = e.target;
+                rect.setAttribute('x', e.touches[0].pageX - shiftX);
+                rect.setAttribute('y', e.touches[0].pageY - shiftY);
             }
             
         </script>
